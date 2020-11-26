@@ -42,7 +42,7 @@ func main() {
 	gomniauth.WithProviders(
 		github.New("5fd073957ba72ae9da89", "4af05cf98979bb9d3b4026cf9b30924c3b9324a3", "http://localhost:8080/auth/callback/github"),
 	)
-	r := newRoom()
+	r := newRoom(UseGravatar)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)

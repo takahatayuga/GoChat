@@ -1,11 +1,15 @@
 package main
 
 import (
+	"crypto/md5"
 	"errors"
+	"fmt"
+	"io"
+	"strings"
 )
 
 //ErrNoAvatarはAvatarインスタンスがアバターのURLを返すことができない場合に発生するエラー
-var ErrorNoAvatarURL = errors.New("chat: アバターのURLを取得できません")
+var ErrNoAvatarURL = errors.New("chat: アバターのURLを取得できません")
 
 //Avatarはユーザのプロフィール画像を表す型
 type Avatar interface {
@@ -25,5 +29,20 @@ func (_ AuthAvatar) GetAvatarURL(c *client) (string, error) {
 			return urlStr, nil
 		}
 	}
-	return "", ErrorNoAvatarURL
+	return "", ErrNoAvatarURL
+}
+
+type GravatarAvatar struct{}
+
+var UseGravatar GravatarAvatar
+
+func (_ GravatarAvatar) GetAvatarURL(c *client) (string, error) {
+	if email, ok := c.userData["email"]; ok {
+		if emailStr, ok := email.(string); ok {
+			m := md5.New()
+			io.WriteString(m, strings.ToLower(emailStr))
+			return fmt.Sprintf("//www.gravatar.com/avatar/%x", m.Sum(nil)), nil
+		}
+	}
+	return "", ErrNoAvatarURL
 }

@@ -13,6 +13,13 @@ import (
 	"github.com/stretchr/objx"
 )
 
+//現在アクティブなAvatarの実装
+var avatars Avatar = TryAvatars{
+	UseFileSystemAvatar,
+	UseAuthAvatar,
+	UseGravatar,
+}
+
 type templateHandler struct {
 	once     sync.Once
 	filename string
@@ -42,7 +49,7 @@ func main() {
 	gomniauth.WithProviders(
 		github.New("5fd073957ba72ae9da89", "4af05cf98979bb9d3b4026cf9b30924c3b9324a3", "http://localhost:8080/auth/callback/github"),
 	)
-	r := newRoom(UseFileSystemAvatar)
+	r := newRoom()
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
